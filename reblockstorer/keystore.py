@@ -28,12 +28,12 @@ class Keystore:
 
     def renew_key(self, public_key, prefix='key'):
         if public_key in self.keys:
-            return self.keys[public_key].public_key
+            return self.keys[public_key]
         else:
             private = IrohaCrypto.private_key()
             public = IrohaCrypto.derive_public_key(private)
-            self.keys[public_key] = Keypair(
-                public_key, private, public, prefix)
+            keypair = Keypair(public_key, private, public, prefix)
+            self.keys[public_key] = keypair
             return public
 
     def save_keys(self):
