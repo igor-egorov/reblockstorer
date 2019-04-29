@@ -20,9 +20,11 @@ def init_parser():
     parser.add_argument('-b', '--blockstore', dest='blockstore', type=path_type,
                         help='Path to source blockstore directory')
     parser.add_argument('-o', '--outblockstore', dest='outblockstore', type=path_type,
-                        help='Path to save the new blockstore')
+                        help='Path to save the new blockstore. '
+                        'Will try to create the path if not exists.')
     parser.add_argument('-k', '--keydir', dest='keydir', type=path_type,
                         help='[OPTIONAL] Path to save the new keys. '
+                        'Will try to create the path if not exists. '
                         'The keys will be saved to OUTBLOCKSTORE directory if not specified.')
     return parser
 
