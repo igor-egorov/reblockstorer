@@ -3,6 +3,7 @@
 import argparse
 import sys
 import os
+import shutil
 from pathlib import Path
 
 
@@ -26,6 +27,8 @@ def init_parser():
                         help='[OPTIONAL] Path to save the new keys. '
                         'Will try to create the path if not exists. '
                         'The keys will be saved to OUTBLOCKSTORE directory if not specified.')
+    parser.add_argument('-f', '--force', dest='force', action='store_true',
+                        help='[OPTIONAL] Forces overwrite of outblockstore and keydir directories.')
     return parser
 
 
@@ -36,12 +39,23 @@ def terminate(message: str, parser: argparse.ArgumentParser, exit_code: int = 1)
     sys.exit(exit_code)
 
 
+def reset_dir(path):
+    try:
+        shutil.rmtree(path)
+        os.makedirs(path)
+    except Exception as err:
+        print('Unable to remove and create the directory {}. {}'.format(path, err))
+        sys.exit(3)
+
+
 def validate(parser: argparse.ArgumentParser, results: argparse.Namespace):
     if not results.blockstore or not results.outblockstore:
         terminate('Please specify required command arguments', parser)
     if not os.path.exists(results.blockstore):
         terminate('Source blockstore path does not exists ({})'.format(
             results.blockstore), parser)
+    if not os.path.isdir(results.blockstore):
+        terminate('Source blockstore path is not a directory', parser)
 
     if not os.path.exists(results.outblockstore):
         try:
@@ -49,6 +63,15 @@ def validate(parser: argparse.ArgumentParser, results: argparse.Namespace):
         except OSError as err:
             terminate('Unable to create outblockstore directory ({}, OSError {})'.format(
                 results.outblockstore, err.errno), parser)
+    elif not os.path.isdir(results.outblockstore):
+        terminate('Outblockstore path is not a directory', parser)
+
+    if os.listdir(results.outblockstore):
+        if not results.force:
+            terminate('Outblockstore directory is not empty. '
+                      'Use -f to overwrite outblocstore and keydir directories.', parser)
+        else:
+            reset_dir(results.outblockstore)
 
     if not results.keydir:
         results.keydir = results.outblockstore
@@ -59,4 +82,14 @@ def validate(parser: argparse.ArgumentParser, results: argparse.Namespace):
         except OSError as err:
             terminate('Unable to create keydir directory ({}, OSError {})'.format(
                 results.keydir, err.errno), parser)
+    elif not os.path.isdir(results.keydir):
+        terminate('Keydir path is not a directory', parser)
+
+    if os.listdir(results.keydir):
+        if not results.force:
+            terminate('Keydir directory is not empty. '
+                      'Use -f to overwrite outblocstore and keydir directories.', parser)
+        else:
+            reset_dir(results.keydir)
+
     return results
