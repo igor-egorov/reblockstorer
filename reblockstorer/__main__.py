@@ -1,13 +1,14 @@
 import sys
 
-from .proto import block_pb2
 from . import arguments
+from . import loader
 
 
 def main():
     parser = arguments.init_parser()
     params = parser.parse_args()
-    print(arguments.validate(parser, params))
+    params = arguments.validate(parser, params)
+    loader.BlockLoader(params.blockstore)
 
 
 if __name__ == "__main__":
