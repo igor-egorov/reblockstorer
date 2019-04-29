@@ -5,13 +5,14 @@ import json
 from .proto import block_pb2
 from google.protobuf import json_format
 
+# todo support sequential block reading
 
 class BlockLoader:
 
     def __init__(self, blockstore_path):
         self.path = blockstore_path
         self.__parse_blocks()
-        print('{} block(s) parsed'.format(len(self.blocks)))
+        print('{} block(s) loaded'.format(len(self.blocks)))
 
     def __list_files(self):
         self.files = []
