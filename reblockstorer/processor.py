@@ -2,13 +2,18 @@
 from iroha import IrohaCrypto
 from .proto import transaction_pb2
 import binascii
+import sys
+import os
+from pprint import pprint
 
 
 class Processor:
 
-    def __init__(self, block_loader, keystore):
+    def __init__(self, block_loader, keystore, peers_addresses):
         self.block_loader = block_loader
         self.keystore = keystore
+        self.peers = peers_addresses
+        self.peers_mapping = {}
 
     def process(self):
         prev_block_hash = '0' * 64
@@ -21,6 +26,24 @@ class Processor:
             self.__process_block_signatures(block)
             prev_block_hash = binascii.hexlify(
                 IrohaCrypto.hash(block.block_v1))
+        self.keystore.save_keys()
+        self.__save_peers_mapping()
+
+    def __renew_peer_addr(self, old):
+        if not len(self.peers):
+            print(
+                'Specified peers list is too short. Please extend peers addresses list.',
+                file=sys.stderr)
+            sys.exit(3)
+        new_peer = self.peers.pop(0)
+        self.peers_mapping[old] = new_peer
+        return new_peer
+
+    def __save_peers_mapping(self):
+        mapping_file = os.path.join(
+            self.keystore.path, 'peers_mapping.txt')  # smells bad :(
+        with open(mapping_file, 'wt') as mapping:
+            pprint(self.peers_mapping, stream=mapping)
 
     def __process_transactions(self, block):
         """Replace all the public keys which are arguments of commands"""
@@ -50,6 +73,7 @@ class Processor:
                 elif cmd.HasField('add_peer'):
                     old_key = cmd.add_peer.peer.peer_key
                     address = cmd.add_peer.peer.address
+                    cmd.add_peer.peer.address = self.__renew_peer_addr(address)
                     new_key = self.keystore.renew_key(
                         old_key, peer_address=address).public_key
                     cmd.add_peer.peer.peer_key = new_key

@@ -12,7 +12,7 @@ def main():
     params = arguments.validate(parser, params)
     block_loader = BlockLoader(params.blockstore)
     keystore = Keystore(params.keydir)
-    processor = Processor(block_loader, keystore)
+    processor = Processor(block_loader, keystore, params.peers)
     processor.process()
 
 

@@ -23,6 +23,9 @@ def init_parser():
     parser.add_argument('-o', '--outblockstore', dest='outblockstore', type=path_type,
                         help='Path to save the new blockstore. '
                         'Will try to create the path if not exists.')
+    parser.add_argument('-p', '--peers', dest='peers', type=path_type,
+                        help='A file that specifies peers addresses to put to AddPeer commands.'
+                        'Each peer address should be placed on its own line')
     parser.add_argument('-k', '--keydir', dest='keydir', type=path_type,
                         help='[OPTIONAL] Path to save the new keys. '
                         'Will try to create the path if not exists. '
@@ -75,6 +78,18 @@ def validate(parser: argparse.ArgumentParser, results: argparse.Namespace):
 
     if not results.keydir:
         results.keydir = results.outblockstore
+
+    if not results.peers or not os.path.exists(results.peers):
+        terminate('Please specify peers addresses file.', parser)
+    else:
+        peers = []
+        with open(results.peers, 'rt') as peers_file:
+            peers_lines = peers_file.readlines()
+            for peer_line in peers_lines:
+                line = peer_line.strip()
+                if line:
+                    peers.append(line)
+        results.peers = peers
 
     if not os.path.exists(results.keydir):
         try:

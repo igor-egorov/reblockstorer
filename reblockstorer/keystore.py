@@ -30,7 +30,7 @@ class Keypair:
             prefix = self.user
         else:
             Keypair.peers_saved += 1
-            prefix = 'node{}{}-'.format(
+            prefix = 'node{}-{}'.format(
                 Keypair.peers_saved, self.__format_peer_address(self.peer_address))
         file_path = os.path.join(path, prefix)
         with open(file_path + '.priv', 'w') as priv:
