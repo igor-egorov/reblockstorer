@@ -10,12 +10,9 @@ class BlockLoader:
 
     def __init__(self, blockstore_path):
         self.path = blockstore_path
-        self.__parse_blocks()
-        print('{} block(s) loaded'.format(len(self.__blocks)))
 
     def blocks(self):
-        # todo support sequential block loading
-        for block in self.__blocks:
+        for block in self.__parse_blocks():
             yield block
 
     def __list_files(self):
@@ -27,11 +24,9 @@ class BlockLoader:
         return self.files
 
     def __parse_blocks(self):
-        self.__blocks = []
         for file_block in self.__list_files():
             block = self.__parse_block(file_block)
-            self.__blocks.append(block)
-        return self.__blocks
+            yield block
 
     def __parse_block(self, filename):
         file_path = os.path.join(self.path, filename)
