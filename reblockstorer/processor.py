@@ -9,8 +9,9 @@ from pprint import pprint
 
 class Processor:
 
-    def __init__(self, block_loader, keystore, peers_addresses):
+    def __init__(self, block_loader, block_saver, keystore, peers_addresses):
         self.block_loader = block_loader
+        self.block_saver = block_saver
         self.keystore = keystore
         self.peers = peers_addresses
         self.peers_mapping = {}
@@ -26,6 +27,7 @@ class Processor:
             self.__process_block_signatures(block)
             prev_block_hash = binascii.hexlify(
                 IrohaCrypto.hash(block.block_v1))
+            self.block_saver.save(block)
         self.keystore.save_keys()
         self.__save_peers_mapping()
 
