@@ -19,13 +19,14 @@ def init_parser():
         description='The tool for keys regeneration for Hyperledger Iroha blockstore')
 
     parser.add_argument('-b', '--blockstore', dest='blockstore', type=path_type,
-                        help='Path to source blockstore directory')
+                        help='Path to source blockstore directory.')
     parser.add_argument('-o', '--outblockstore', dest='outblockstore', type=path_type,
                         help='Path to save the new blockstore. '
                         'Will try to create the path if not exists.')
     parser.add_argument('-p', '--peers', dest='peers', type=path_type,
-                        help='A file that specifies peers addresses to put to AddPeer commands.'
-                        'Each peer address should be placed on its own line')
+                        help='[OPTIONAL] A file that specifies peers addresses to put to AddPeer commands. '
+                        'Each peer address should be placed on its own line. '
+                        'If omitted, then peers addresses will remain unmodified.')
     parser.add_argument('-k', '--keydir', dest='keydir', type=path_type,
                         help='[OPTIONAL] Path to save the new keys. '
                         'Will try to create the path if not exists. '
@@ -79,8 +80,11 @@ def validate(parser: argparse.ArgumentParser, results: argparse.Namespace):
     if not results.keydir:
         results.keydir = results.outblockstore
 
-    if not results.peers or not os.path.exists(results.peers):
-        terminate('Please specify peers addresses file.', parser)
+    if not results.peers:
+        print('Peers addresses will remain the same.')
+    elif not os.path.exists(results.peers):
+        terminate(
+            'Please specify the correct path to the peers\' addresses file.', parser)
     else:
         peers = []
         with open(results.peers, 'rt') as peers_file:

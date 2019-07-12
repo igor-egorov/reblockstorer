@@ -32,6 +32,9 @@ class Processor:
         self.__save_peers_mapping()
 
     def __renew_peer_addr(self, old):
+        if None == self.peers:
+            # Peers file was not set, thus we are preserving peers addresses
+            return old
         if not len(self.peers):
             print(
                 'Specified peers list is too short. Please extend peers addresses list.',

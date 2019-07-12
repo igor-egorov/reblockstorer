@@ -16,6 +16,7 @@ def main():
     keystore = Keystore(params.keydir)
     processor = Processor(block_loader, block_saver, keystore, params.peers)
     processor.process()
+    print('Processing finished.')
 
 
 if __name__ == "__main__":
