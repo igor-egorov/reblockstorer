@@ -1,5 +1,9 @@
 _restored/
 *.bak
+bb/
+out/
+peers.txt
+keys/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

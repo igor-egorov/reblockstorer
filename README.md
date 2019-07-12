@@ -2,10 +2,12 @@
 
 A tool for regenaration of all the keys for some existing Hyperledger Iroha blockstore.
 
+Written in Python 3.
+
 ## Installation
 
 1. Download the sources
-2. `pip install .`
+2. `pip3 install .`
 
 ## Usage example
 
