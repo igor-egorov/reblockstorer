@@ -35,6 +35,10 @@ def init_parser():
                         help='[OPTIONAL] Path to a folder with existing key pairs which should not be recreated and overwritten. '
                         'A keypair is represented by a couple of files with the same name but different extensions: .priv and .pub. '
                         'Each file contains a string without any trailing characters with hex representation of the key.')
+    parser.add_argument('-r', '--resignblocksonly', dest='resignblocksonly', action='store_true',
+                        help='[OPTIONAL] Prevents users\' keys recreation and user\' transactions re-signing. '
+                        'Only block signatures are get recalculated. '
+                        'This option can be used only when peers\' keypairs are known and specified via existing keys parameter -e.')
     parser.add_argument('-f', '--force', dest='force', action='store_true',
                         help='[OPTIONAL] Forces overwrite of outblockstore and keydir directories.')
     return parser
@@ -91,6 +95,14 @@ def validate(parser: argparse.ArgumentParser, results: argparse.Namespace):
         if not os.path.isdir(results.existingkeys):
             terminate('The path {} is not a directory.'.format(
                 results.existingkeys), parser)
+
+    if results.resignblocksonly:
+        if not results.existingkeys:
+            terminate(
+                'You have to specify peers\' keypairs to re-sign blocks via -e parameter.', parser)
+        if results.peers:
+            terminate('Not possible to assign new addresses to peers when -r option is specified. '
+                      'This will lead to the need of transactions re-signing which is prohibited by -r option.', parser)
 
     if not results.peers:
         print('Peers addresses will remain the same.')

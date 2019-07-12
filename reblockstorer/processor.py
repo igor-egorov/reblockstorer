@@ -9,11 +9,13 @@ from pprint import pprint
 
 class Processor:
 
-    def __init__(self, block_loader, block_saver, keystore, peers_addresses):
+    def __init__(self, block_loader, block_saver, keystore, peers_addresses, resignblocksonly):
         self.block_loader = block_loader
         self.block_saver = block_saver
         self.keystore = keystore
         self.peers = peers_addresses
+        self.resignblocksonly = resignblocksonly
+        self.process_txs = not resignblocksonly
         self.peers_mapping = {}
 
     def process(self):
@@ -21,9 +23,10 @@ class Processor:
 
         for block in self.block_loader.blocks():
             block.block_v1.payload.prev_block_hash = prev_block_hash
-            self.__process_transactions(block)
-            self.__process_batches(block)
-            self.__process_txs_signatures(block)
+            if self.process_txs:
+                self.__process_transactions(block)
+                self.__process_batches(block)
+                self.__process_txs_signatures(block)
             self.__process_block_signatures(block)
             prev_block_hash = binascii.hexlify(
                 IrohaCrypto.hash(block.block_v1))
@@ -138,7 +141,10 @@ class Processor:
         block_keypairs = []
         for signature in block.block_v1.signatures:
             kp = self.keystore.renew_key(
-                signature.public_key, peer_address="unknown")
+                signature.public_key,
+                peer_address="unknown",
+                disallow_key_creation=self.resignblocksonly
+            )
             block_keypairs.append(kp)
         del block.block_v1.signatures[:]
         for kp in block_keypairs:

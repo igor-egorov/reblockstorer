@@ -1,5 +1,6 @@
 
 import os
+import sys
 import string
 from pprint import pprint
 from iroha import IrohaCrypto
@@ -83,10 +84,17 @@ class Keystore:
                         pub_hex_str
                     ))
 
-    def renew_key(self, public_key, user=None, peer_address=None):
+    def renew_key(self, public_key, user=None, peer_address=None, disallow_key_creation=False):
         if public_key in self.keys:
             self.keys[public_key].used = True
             return self.keys[public_key]
+        elif disallow_key_creation:
+            print('Error: the keypair for the {} with public key {} was not preloaded. '
+                  '-r option prohibits its re-creation.'.format(
+                      'peer' if peer_address else 'user',
+                      public_key
+                  ))
+            sys.exit(1)
         else:
             assert(user or peer_address)
             keypair = Keypair(public_key, user, peer_address)
