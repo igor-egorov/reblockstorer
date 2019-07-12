@@ -4,6 +4,7 @@ bb/
 out/
 peers.txt
 keys/
+ekeys/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

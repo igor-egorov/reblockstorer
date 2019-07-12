@@ -31,6 +31,10 @@ def init_parser():
                         help='[OPTIONAL] Path to save the new keys. '
                         'Will try to create the path if not exists. '
                         'The keys will be saved to OUTBLOCKSTORE directory if not specified.')
+    parser.add_argument('-e', '--existingkeys', dest='existingkeys', type=path_type,
+                        help='[OPTIONAL] Path to a folder with existing key pairs which should not be recreated and overwritten. '
+                        'A keypair is represented by a couple of files with the same name but different extensions: .priv and .pub. '
+                        'Each file contains a string without any trailing characters with hex representation of the key.')
     parser.add_argument('-f', '--force', dest='force', action='store_true',
                         help='[OPTIONAL] Forces overwrite of outblockstore and keydir directories.')
     return parser
@@ -79,6 +83,14 @@ def validate(parser: argparse.ArgumentParser, results: argparse.Namespace):
 
     if not results.keydir:
         results.keydir = results.outblockstore
+
+    if results.existingkeys:
+        if not os.path.exists(results.existingkeys):
+            terminate('The path {} does not exists.'.format(
+                results.existingkeys), parser)
+        if not os.path.isdir(results.existingkeys):
+            terminate('The path {} is not a directory.'.format(
+                results.existingkeys), parser)
 
     if not results.peers:
         print('Peers addresses will remain the same.')

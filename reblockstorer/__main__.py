@@ -13,7 +13,7 @@ def main():
     params = arguments.validate(parser, params)
     block_loader = BlockLoader(params.blockstore)
     block_saver = BlockSaver(params.outblockstore)
-    keystore = Keystore(params.keydir)
+    keystore = Keystore(params.keydir, params.existingkeys)
     processor = Processor(block_loader, block_saver, keystore, params.peers)
     processor.process()
     print('Processing finished.')
