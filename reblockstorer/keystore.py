@@ -10,6 +10,7 @@ class Keypair:
 
     def __init__(self, source_public, user, peer_address, source_private=None):
         assert(user or peer_address)
+        self.used = False
         self.source_public_key = source_public
         if None == source_private:
             self.private_key = IrohaCrypto.private_key()
@@ -84,15 +85,21 @@ class Keystore:
 
     def renew_key(self, public_key, user=None, peer_address=None):
         if public_key in self.keys:
+            self.keys[public_key].used = True
             return self.keys[public_key]
         else:
             assert(user or peer_address)
             keypair = Keypair(public_key, user, peer_address)
+            keypair.used = True
             self.keys[public_key] = keypair
             return keypair
 
     def save_keys(self):
         mapping_file = os.path.join(self.path, 'keys_mapping.txt')
+        for _, kp in self.keys.items():
+            if not kp.used:
+                print('Warning: keypair was loaded but not used: {}'.format(
+                    kp.user if kp.user else kp.peer_address))
         with open(mapping_file, 'wt') as mapping:
             pprint(self.keys, stream=mapping)
         for _, keypair in self.keys.items():
