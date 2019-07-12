@@ -14,6 +14,8 @@ Written in Python 3.
 
 # Installation
 
+*It is recommended to do the following steps being in some newly created python virtual environment.*
+
 1. Download the sources
 2. `pip3 install .`
 
