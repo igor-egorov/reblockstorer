@@ -19,6 +19,12 @@ Written in Python 3.
 1. Download the sources
 2. `pip3 install .`
 
+## Docker
+
+1. Download the sources
+2. `docker build -t reblockstorer .`
+3. `docker run reblockstorer --help`
+
 # Use Cases and Usage Examples
 
 ## Debugging Foreign Network
