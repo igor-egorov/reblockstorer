@@ -86,12 +86,29 @@ The content of users' transactions woud not be changed, thus users' keys are not
 
 `reblockstore -b /path/to/source/blockstore -o /path/to/new/blockstore -k /path/to/store/new/keys/and/mappings -e /path/to/existing/keypairs -r`
 
+or with docker.
+
+```
+docker run \
+    -v /path/to/source/blockstore:/in/blockstore \
+    -v /path/to/new/blockstore:/out/blockstore  \
+    -v /path/to/store/new/keys/and/mappings:/out/key \
+    -v /path/to/existing/keypairs:/in/key
+    soramitsu/reblockstorer -b /in/blockstore -o /out/blockstore -k /out/key -e /in/key -r
+```
+
 In this case, you have to put all the peers keypairs to `/path/to/existing/keypairs`.
 
 # ReBlockStorer Help Page Printout
 
 ```
 $ reblockstore -h
+```
+
+or
+
+```
+$ docker run soramitsu/reblockstorer -h
 usage: reblockstore [-h] [-b BLOCKSTORE] [-o OUTBLOCKSTORE] [-p PEERS]
                     [-k KEYDIR] [-e EXISTINGKEYS] [-r] [-f]
 
