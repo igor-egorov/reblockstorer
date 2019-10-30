@@ -63,36 +63,39 @@ def reset_dir(path):
 def validate(parser: argparse.ArgumentParser, results: argparse.Namespace):
     if not results.blockstore or not results.outblockstore:
         terminate('Please specify required command arguments', parser)
-    if not os.path.exists(results.blockstore):
+    if not results.blockstore.exists():
         terminate('Source blockstore path does not exists ({})'.format(
             results.blockstore), parser)
-    if not os.path.isdir(results.blockstore):
+    if not results.blockstore.is_dir():
         terminate('Source blockstore path is not a directory', parser)
 
-    if not os.path.exists(results.outblockstore):
+    if not results.outblockstore.exists():
         try:
-            os.makedirs(results.outblockstore, exist_ok=True)
+            results.outblockstore.mkdir(exist_ok=True)
         except OSError as err:
             terminate('Unable to create outblockstore directory ({}, OSError {})'.format(
                 results.outblockstore, err.errno), parser)
-    elif not os.path.isdir(results.outblockstore):
+    elif not results.outblockstore.is_dir():
         terminate('Outblockstore path is not a directory', parser)
 
-    if os.listdir(results.outblockstore):
+    try:
+        next(results.outblockstore.iterdir())
         if not results.force:
             terminate('Outblockstore directory is not empty. '
-                      'Use -f to overwrite outblocstore and keydir directories.', parser)
+                      'Use -f to overwrite outblockstore and keydir directories.', parser)
         else:
             reset_dir(results.outblockstore)
+    except StopIteration:
+        pass
 
     if not results.keydir:
         results.keydir = results.outblockstore
 
     if results.existingkeys:
-        if not os.path.exists(results.existingkeys):
+        if not results.existingkeys.exists():
             terminate('The path {} does not exists.'.format(
                 results.existingkeys), parser)
-        if not os.path.isdir(results.existingkeys):
+        if not results.existingkeys.is_dir():
             terminate('The path {} is not a directory.'.format(
                 results.existingkeys), parser)
 
@@ -106,7 +109,7 @@ def validate(parser: argparse.ArgumentParser, results: argparse.Namespace):
 
     if not results.peers:
         print('Peers addresses will remain the same.')
-    elif not os.path.exists(results.peers):
+    elif not results.peers.exists():
         terminate(
             'Please specify the correct path to the peers\' addresses file.', parser)
     else:
@@ -119,20 +122,23 @@ def validate(parser: argparse.ArgumentParser, results: argparse.Namespace):
                     peers.append(line)
         results.peers = peers
 
-    if not os.path.exists(results.keydir):
+    if not results.keydir.exists():
         try:
-            os.makedirs(results.keydir, exist_ok=True)
+            results.keydir.mkdir(exist_ok=True)
         except OSError as err:
             terminate('Unable to create keydir directory ({}, OSError {})'.format(
                 results.keydir, err.errno), parser)
-    elif not os.path.isdir(results.keydir):
+    elif not results.keydir.is_dir():
         terminate('Keydir path is not a directory', parser)
 
-    if os.listdir(results.keydir):
+    try:
+        next(results.keydir.iterdir())
         if not results.force:
             terminate('Keydir directory is not empty. '
                       'Use -f to overwrite outblocstore and keydir directories.', parser)
         else:
             reset_dir(results.keydir)
+    except StopIteration:
+        pass
 
     return results
